@@ -62,11 +62,10 @@ def add_attack():
     
     data = request.get_json()
 
-    attack_data = data.get("attacks")
+    attack = data
 
-    # Store the attack information in MongoDB
-    for attack in attack_data:
-        db.logs.insert_one({"server_token": token, "attacker_ip": attack.get("ip"), "attack_time": attack.get("time"), "text": attack.get("text")})
+
+    db.logs.insert_one({"server_token": token, "attacker_ip": attack.get("ip"), "attack_time": attack.get("time"), "text": attack.get("text")})
 
     return jsonify({"message": "Attack information added successfully."}), 200
 
