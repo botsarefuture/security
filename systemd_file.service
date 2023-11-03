@@ -3,12 +3,11 @@ Description=Security Service
 After=network.target
 
 [Service]
-ExecStart=/path/to/install_security.sh
+ExecStart=python3 client.py
 WorkingDirectory=/opt/security
 Restart=always
 RestartSec=5
-User=your_username
-Group=your_group
+User=root
 
 [Install]
 WantedBy=multi-user.target
