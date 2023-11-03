@@ -18,3 +18,4 @@ sudo cp systemd_file.service /etc/systemd/system/security.service
 
 sudo systemctl daemon-reload
 
+sudo systemctl start security
