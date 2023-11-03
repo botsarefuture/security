@@ -3,6 +3,8 @@
 # Set the installation directory
 INSTALL_DIR="/opt/security"
 
+sudo apt install git python3 python3-pip -y
+
 # Clone the GitHub repository
 git clone https://github.com/botsarefuture/security.git "$INSTALL_DIR"
 
@@ -10,11 +12,9 @@ git clone https://github.com/botsarefuture/security.git "$INSTALL_DIR"
 cd "$INSTALL_DIR"
 
 # Install dependencies
-pip install -r requirements.txt
+sudo pip install -r requirements.txt
 
-# Create a virtual environment (optional)
-# python -m venv venv
-# source venv/bin/activate
+sudo cp systemd_file.service /etc/systemd/system/security.service
 
-# Start the application
-python app.py
+sudo systemctl daemon-reload
+
