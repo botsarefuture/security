@@ -119,7 +119,7 @@ def watch_auth_log():
 
             # Check if 1 minute has passed since the last save
             if time.time() - last_save_time >= 60:
-                data = {"processed_lines": processed_lines}
+                data = {"processed_lines": processed_lines, "token": token}
                 save_data(data)
                 last_save_time = time.time()
 
