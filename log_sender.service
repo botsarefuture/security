@@ -1,11 +1,14 @@
 [Unit]
-Description=Your Python Script
+Description=Security Service
 After=network.target
 
 [Service]
-ExecStart=python3 /root/log.py
+ExecStart=/path/to/install_security.sh
+WorkingDirectory=/opt/security
 Restart=always
 RestartSec=5
+User=your_username
+Group=your_group
 
 [Install]
 WantedBy=multi-user.target
