@@ -15,7 +15,7 @@ def get_public_ip():
     return None
 
 config = {
-    "api_url": "https://security.sinimustaahallitustavastaan.org/"
+    "api_url": "http://135.181.193.165:5000"
 }
 
 processed_lines = []
