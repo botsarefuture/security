@@ -22,9 +22,15 @@ processed_lines = []
 
 try:
     with open("data.json", "r") as f:
-        processed_lines = json.load(f)["processed_lines"]
+        datas = json.load(f)
+        
+        
+        processed_files = datas["processed_lines"]
+
 except Exception as e:
     pass
+
+last_save_time = time.time()  # Initialize the last save time
 
 def save_data(data):
     with open("data.json", "w") as f:
@@ -36,15 +42,18 @@ if not config.get("api_url").endswith("/"):
 api_url = config["api_url"]
 
 def get_token(public_ip):
-    while True:
-        try:
-            response = requests.post(f"{api_url}register/", json={"ip_address": public_ip})
-            if response.status_code == 200:
-                return response.json().get("token")
-        except requests.exceptions.ConnectionError:
-            time.sleep(10)  # Retry after 10 seconds if the server is down
-        except Exception as e:
-            pass
+    if not datas.get("token"):        
+        while True:
+            try:
+                response = requests.post(f"{api_url}register/", json={"ip_address": public_ip})
+                if response.status_code == 200:
+                    return response.json().get("token")
+            except requests.exceptions.ConnectionError:
+                time.sleep(10)  # Retry after 10 seconds if the server is down
+            except Exception as e:
+                pass
+    else:
+        return datas.get("token")
 
 token = get_token(get_public_ip())
 
@@ -107,6 +116,12 @@ def watch_auth_log():
                             if attack_data:
                                 report_attack(attack_data)
                             processed_lines.append(line)
+
+            # Check if 1 minute has passed since the last save
+            if time.time() - last_save_time >= 60:
+                data = {"processed_lines": processed_lines}
+                save_data(data)
+                last_save_time = time.time()
 
     except KeyboardInterrupt:
         inotify.rm_watch(watch_descriptor)
