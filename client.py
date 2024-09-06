@@ -5,26 +5,25 @@ from datetime import datetime
 import time
 import json
 
+
 def get_public_ip():
     try:
-        response = requests.get('https://httpbin.org/ip')
+        response = requests.get("https://httpbin.org/ip")
         if response.status_code == 200:
-            return response.json().get('origin')
+            return response.json().get("origin")
     except Exception as e:
         pass
     return None
 
-config = {
-    "api_url": "http://135.181.193.165:5000"
-}
+
+config = {"api_url": "http://135.181.193.165:5000"}
 
 processed_lines = []
 
 try:
     with open("data.json", "r") as f:
         datas = json.load(f)
-        
-        
+
         processed_files = datas["processed_lines"]
 
 except Exception as e:
@@ -32,20 +31,25 @@ except Exception as e:
 
 last_save_time = time.time()  # Initialize the last save time
 
+
 def save_data(data):
     with open("data.json", "w") as f:
         json.dump(data, f)
+
 
 if not config.get("api_url").endswith("/"):
     config["api_url"] += "/"
 
 api_url = config["api_url"]
 
+
 def get_token(public_ip):
-    if not datas.get("token"):        
+    if not datas.get("token"):
         while True:
             try:
-                response = requests.post(f"{api_url}register/", json={"ip_address": public_ip})
+                response = requests.post(
+                    f"{api_url}register/", json={"ip_address": public_ip}
+                )
                 if response.status_code == 200:
                     return response.json().get("token")
             except requests.exceptions.ConnectionError:
@@ -55,7 +59,9 @@ def get_token(public_ip):
     else:
         return datas.get("token")
 
+
 token = get_token(get_public_ip())
+
 
 def report_attack(attack_data):
     while True:
@@ -64,7 +70,7 @@ def report_attack(attack_data):
             jsondata = {
                 "ip": attack_data["ip"],
                 "time": attack_data["time"],
-                "text": attack_data["text"]
+                "text": attack_data["text"],
             }
             response = requests.post(url, json=jsondata, headers={"Token": token})
             if response.status_code == 200:
@@ -73,6 +79,7 @@ def report_attack(attack_data):
             time.sleep(10)  # Retry after 10 seconds if the server is down
         except Exception as e:
             pass
+
 
 # Function to parse and extract attack information from auth.log lines
 def parse_auth_log_line(line):
@@ -95,11 +102,12 @@ def parse_auth_log_line(line):
 
     return None
 
+
 def watch_auth_log():
     inotify = INotify()
     watch_flags = flags.MODIFY | flags.CLOSE_WRITE
 
-    watch_descriptor = inotify.add_watch('/var/log/auth.log', watch_flags)
+    watch_descriptor = inotify.add_watch("/var/log/auth.log", watch_flags)
 
     try:
         while True:
@@ -107,9 +115,13 @@ def watch_auth_log():
 
             for event in events:
                 if event.mask & flags.MODIFY or event.mask & flags.CLOSE_WRITE:
-                    with open('/var/log/auth.log') as auth_log:
+                    with open("/var/log/auth.log") as auth_log:
                         auth_log_lines = auth_log.readlines()
-                        new_lines = [line for line in auth_log_lines if line not in processed_lines]
+                        new_lines = [
+                            line
+                            for line in auth_log_lines
+                            if line not in processed_lines
+                        ]
 
                         for line in new_lines:
                             attack_data = parse_auth_log_line(line)
@@ -128,5 +140,6 @@ def watch_auth_log():
         data = {"processed_lines": processed_lines}
         save_data(data)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     watch_auth_log()
